@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import queryString from 'query-string';
 
 let defaultStyle = {
   color: '#fff'
@@ -16,32 +17,7 @@ let fakeServerData = {
           {name: 'cmonBruh', duration: 1235},
           {name: 'Feel Good Inc', duration: 1533}
         ]
-        
-      },
-      {
-        name: 'New Releases',
-        songs: [
-          {name:'Ayy lmao', duration: 1443}, 
-          {name: 'cmonBruh', duration: 1235},
-          {name: 'De Wey', duration: 1533}
-        ]
-      },
-      {
-        name: 'New Portillo',
-        songs: [
-          {name:'Ayy lmao', duration: 1443}, 
-          {name: 'cmonBruh', duration: 1235},
-          {name: 'Feel Good Inc', duration: 1533}
-        ]
-      },
-      {
-        name: 'Safe Releases',
-        songs: [
-          {name:'Ayy lmao', duration: 1443}, 
-          {name: 'Chu Mean', duration: 1235},
-          {name: 'Feel Good Inc', duration: 1533}
-        ]
-      },
+      }
     ]
   }
 };
@@ -110,9 +86,15 @@ class App extends Component {
     }
   }
   componentDidMount() {
-    setTimeout(() => {
-      this.setState({serverData: fakeServerData});
-    }, 1000);
+    let parsed = queryString.parse(window.location.search);
+    let accessToken = parsed.access_token;
+    
+    fetch('https://api.spotify.com/v1/me', {
+      headers: { 
+        'Authorization': 'Bearer ' + accessToken
+      }
+    }).then(response => response.json()
+    ).then(data => this.setState({serverData: {user: {name: data.display_name}}}))
   }
   render() {
     let playlistToRender = this.state.serverData.user ? this.state.serverData.user.playlists
@@ -127,10 +109,8 @@ class App extends Component {
           <h1 style={{...defaultStyle, 'font-size': '54px'}}>
             {this.state.serverData.user.name}'s Playlists
           </h1>
-        
           <PlaylistCounter playlists={playlistToRender}/>
           <HoursCounter playlists={playlistToRender}/>
-        
           <Filter onTextChange={text => {
               this.setState({filterString: text})
             }
@@ -140,7 +120,8 @@ class App extends Component {
             <Playlist playlist={playlist}/>
           )}
           
-        </div> : <h1 style={defaultStyle}>Loading...</h1>
+        </div> : <button onClick={()=>window.location='http://spotify-react-prototype-chunkygerbil.c9users.io:8081/login'}
+          style={{padding: '20px', 'font-size': '50px', 'margin-top': '20px'}}>Sign in with Spotify</button>
         }
       </div>
     );
