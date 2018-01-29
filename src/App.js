@@ -144,7 +144,7 @@ class App extends Component {
         </div> : <button onClick={() => {
             window.location = window.location.href.includes('c9users') 
               ? 'http://spotify-react-prototype-chunkygerbil.c9users.io:8081/login' 
-              : 'https://spotify-better-playlists.herokuapp.com/login' }
+              : 'https://sptfy-better-playlists-backend.herokuapp.com/login' }
           }
           style={{padding: '20px', 'font-size': '50px', 'margin-top': '20px'}}>Sign in with Spotify</button>
         }
