@@ -65,7 +65,7 @@ class Playlist extends Component {
     let playlist = this.props.playlist;
     return (
       <div style={{...defaultStyle, display: 'inline-block', width: '25%'}}>
-        <img/>
+        <img src ={playlist.imageUrl} style={{width: '60px'}}/>
         <h3>{playlist.name}</h3>
         <ul>
           {playlist.songs.map(song =>
@@ -90,24 +90,43 @@ class App extends Component {
     let accessToken = parsed.access_token;
     
     fetch('https://api.spotify.com/v1/me', {
-      headers: { 
-        'Authorization': 'Bearer ' + accessToken
-      }
-    }).then(response => response.json()
-    ).then(data => this.setState({serverData: {user: {name: data.display_name}}}))
+      headers: {'Authorization': 'Bearer ' + accessToken}
+    }).then(response => response.json())
+    .then(data => this.setState({
+      user: {
+        name: data.display_name
+      } ? {name: data.id} : []
+    }))
+    
+    fetch('https://api.spotify.com/v1/me/playlists', {
+      headers: {'Authorization': 'Bearer ' + accessToken}
+    }).then(response => response.json())
+    .then(data => this.setState({
+      playlists: data.items.map(item => {
+        console.log(data.items);
+        return {
+          name: item.name,
+          imageUrl: item.images[0].url,
+          songs: []
+        }
+      })
+    }))
+    
   }
   render() {
-    let playlistToRender = this.state.serverData.user ? this.state.serverData.user.playlists
-      .filter(playlist =>
+    let playlistToRender = 
+      this.state.user && 
+      this.state.playlists
+      ? this.state.playlists.filter(playlist =>
         playlist.name.toLowerCase().includes(
-          this.state.filterString.toLowerCase())
-      ) : []
+        this.state.filterString.toLowerCase())) 
+      : []
     return (
       <div className="App">
-        {this.state.serverData.user ? 
+        {this.state.user ? 
         <div>
           <h1 style={{...defaultStyle, 'font-size': '54px'}}>
-            {this.state.serverData.user.name}'s Playlists
+            {this.state.user.name}'s Playlists
           </h1>
           <PlaylistCounter playlists={playlistToRender}/>
           <HoursCounter playlists={playlistToRender}/>
