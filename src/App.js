@@ -120,7 +120,8 @@ class App extends Component {
           playlists[i].trackDatas = trackData.items
             .map(item => item.track)
             .map(trackData => ({
-              name: trackData.name
+              name: trackData.name,
+              duration: trackData.duration_ms / 1000
             }))
         })
         return playlists
